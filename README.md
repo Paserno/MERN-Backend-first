@@ -138,3 +138,66 @@ router.get('/', (req, res) => {
 module.exports = router;
 ````
 ----
+### 2,5.- Endpoints
+Se crearán algunos endpoint adicionales en route de auth.
+
+Pasos a Seguir:
+* Crear una 📂carpeta `controllers/` y se crea el primer controlador donde se tendrá los diferentes endpoints para tener mas modular el codigo y limpio de leer.
+* Se importan los diferente endpoints hacia `routes/auth.js`.
+
+En `controllers/auth-controller.js`
+* Se importa `response` para tener una ayuda de tipado.
+````
+const { response } = require('express');
+````
+* Se crea el endpoint de registrar usuario que es un POST.
+````
+const crearUsuario = (req, res = response) => {    
+    res.json({
+        ok: true,
+        msg: 'Register new'
+    })
+}
+````
+* Se crea el endpoint donde se manejará el login.
+````
+const loginUsuario = (req, res) => {
+    res.json({
+        ok: true,
+        msg: 'login'
+    })
+}
+````
+* Se crea el enpoint de revalidar el token.
+````
+const revalidarToken = (req, res) => {
+    res.json({
+        ok: true,
+        msg: 'renew'
+    })
+}
+````
+* Se importan las funciones del controlador de auth. 
+````
+module.exports = {
+    crearUsuario,
+    loginUsuario,
+    revalidarToken,
+
+}
+````
+En `routes/auth.js`
+* Se importan los elementos del controlador.
+````
+const { crearUsuario, revalidarToken, loginUsuario } = require('../controllers/auth-controller');
+````
+* Se implementan las funciones importadas del controlador en las diferentes rutas.
+````
+router.get('/renew', revalidarToken);
+
+router.post('/new', crearUsuario);
+
+router.post('/', loginUsuario);
+````
+----
+
