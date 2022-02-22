@@ -108,3 +108,33 @@ app.listen( port, () => {
 } );
 ````
 ----
+### 2.- Creando Ruta de Auth
+En este punto la ruta de Auth tendra su propio archivo con sus endpoint que se crearan posteriormente.
+
+Paso a Seguir:
+* Crear una 📂carpeta de `routes/` donde se almacenaran todas las rutas de la aplicación comenzando con la de autenticación `auth.js`.
+* Se importa la ruta nueva creada en el `index.js` para usarla en la aplicación. 
+
+En `router/auth.js`
+* Se importa express con `Router`.
+````
+const { Router } = require('express');
+````
+* Extraemos la función de Router y utilizaro en una constante.
+````
+const router = Router();
+````
+* Creamos la primera ruta con el endpoint __Get__ que enviamos el mismo `ok: true`.
+````
+router.get('/', (req, res) => {
+    
+    res.json({
+        ok: true
+    })
+});
+````
+* Se exporta el `router`.
+````
+module.exports = router;
+````
+----
