@@ -55,3 +55,56 @@ app.get('/', (req, res) => {
 })
 ````
 ----
+### 1,5.- Variable de entorno
+En este punto se creará la carpeta publica para el contenido que se mostrará, ademas de instalar __Dotenv__ para el manejo de variables de entorno.
+
+Paso a Seguir:
+* Crear 📂carpeta `public/`.
+    * Se crea el archivo `index.hmtl` y `styles.css`.
+* Instalar __Dotenv__.
+    * Crear variable de entorno en `.env`.
+* En el archivo principal `index.js` se implementará el contenido que esta en `public/` y importar variable de entorno. 
+
+En `public/index.hml`
+* Se crea la estructura HTML con el snappet `!`, luego importamos el archivo CSS.
+````
+<link rel="stylesheet" href="./styles.css">
+````
+* Agregamos algo en el cuerpo del HTML para mostrar.
+````
+<body>
+    <h1>Bloqueado</h1>
+</body>
+````
+En `public/styles.css`
+* Le damos un estilo basico.
+````
+html, body {
+    background-color: #020205;
+    color: rgba(236, 225, 225, 0.876)
+}
+````
+En `.env`
+* Una vez instalado __Dotenv__ generamos el archivo que manipualara las variables de entorno, en este caso implementamos el puerto.
+````
+PORT=4000
+````
+En `index.js`
+* Se importa `Dotenv` en el archivo principal.
+* Se crea una constante que recibirá la variable de entorno creada.
+````
+require('dotenv').config();
+
+const port = process.env.PORT;
+````
+* Implementamos el directorio publico con la configuración de express usando su __middleware__.
+````
+app.use( express.static('public') );
+````
+* Remplazamos el valor en duro, para agregarle la constante que tiene la variable de entorno del puerto.
+````
+app.listen( port, () => {
+    console.log(`Servidor en puerto ${ port }`)
+} );
+````
+----
