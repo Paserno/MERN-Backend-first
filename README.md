@@ -200,4 +200,52 @@ router.post('/new', crearUsuario);
 router.post('/', loginUsuario);
 ````
 ----
+### 3.- Recuperar información del POST
+En este punto se implmeneta la configuración de __Express__ para recibir información del las peticiones POST que se hagan.
 
+Paso a Seguir:
+* Agregar configuración de expres en `index.js`
+* En el controlador de auth realizamos la toma de lo que venga en el body de la petición __POST__.
+
+En `index.js`
+* Esta configuración permite realizar la lectura o la obtencion del body de una peticion POST.
+````
+app.use( express.json() );
+````
+En `controllers/auth-controller.js`
+* En la función `crearUsuario` realizamos la desestructuración del contenido que será enviado por el body, en este caso mandamos el `name`, `email` y `password`.
+* Podemos hacer validaciónes como en el ejemplo del `if`, en el caso que la contraseña sea menor a 5, se enviará un `status 400` con un mensaje.
+* En el caso que todo salga bien se enviará como respuesta un mensaje y el contenido del body.
+````
+const crearUsuario = (req, res = response) => {
+    const { name, email, password } = req.body;
+
+    if ( password.length < 5 ){
+        return res.status(400).json({
+            ok: false,
+            msg: 'La contraseña debe de ser de 5 caracteres'
+        })
+    }
+    res.json({
+        ok: true,
+        msg: 'Register new',
+        name,
+        email,
+        password
+    })
+}
+````
+* De la misma manera lo hacemos con el POST del login, recibiendo el emial y la contraseña.
+````
+const loginUsuario = (req, res) => {
+    const { email, password } = req.body;
+    
+    res.json({
+        ok: true,
+        msg: 'login',
+        email,
+        password
+    })
+}
+````
+----
