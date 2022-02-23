@@ -6,6 +6,7 @@ Elementos utilizados:
 * __[Express](https://www.npmjs.com/package/express)__ - [Pagina Oficial](https://expressjs.com)
 * __[Doenv](https://www.npmjs.com/package/dotenv)__
 * __[Cors](https://www.npmjs.com/package/cors)__
+* __[Express-Validator](https://www.npmjs.com/package/express-validator)__ - [Pagina Oficial](https://express-validator.github.io/docs/)
 
 
 ----
@@ -248,4 +249,62 @@ const loginUsuario = (req, res) => {
     })
 }
 ````
+----
+### 4.- Express Validator
+En este punto se implementará __Express Validator__ para realizar algunas validaciónes en los endpoints.
+
+Paso a Seguir:
+* Instalar __[Express-Validator](https://www.npmjs.com/package/express-validator)__.
+* Crear un __Middleware__ para validar los campos que son enviados por los endpoints, para esto lo importamos en `routes/auth.js`.
+* Implementar en `routes/auth.js` Express Validator con `check` para controlar los endpoints.
+
+En `middleware/validar-campos.js`
+* Una vez instalado __Express Validator__ se importa con `validationResult`.
+````
+const { validationResult } = require('express-validator');
+````
+* Creamos la función `validarCampos` que recibirá por parametros request `req`, response `res` y `next`.
+* Usamos `validationResult` con la request y lo asignamos a una constante.
+* Realizamos una validación en el caso que haya algun error saltará un return con __status 400__ con algun error, en el caso que no haya error solo se mandará `next()` pasando al siguiente middleware o enpoint.
+````
+const validarCampos = ( req, res, next ) => {
+    const errors = validationResult(req);
+    if( !errors.isEmpty() ){
+        return res.status(400).json(errors);
+    }
+    next();
+}
+````
+* Exportamos la función
+````
+module.exports = {
+    validarCampos
+}
+````
+En `routes/auth.js`
+* Importamos 2 elementos nuevos `check` de express validator y el middleware recién creado `validarCampos`.
+````
+const { check }  = require('express-validator');
+...
+const { validarCampos } = require('../middleware/validar-campos');
+````
+* Realizamos algunas validaciónes con `check` en este caso para el `name`, `email` y `password` para el endpoint de register, ademas de utilizar el middleware que se creo `validarCampos` que verificará si existe algun error en alguno de los `check`.
+````
+router.post('/new', [
+    check('name', 'El nombre es obligatorio').not().isEmpty(),
+    check('email', 'El email es obligatorio').isEmail(),
+    check('password', 'El contraseña debe de ser de 6 caracteres').isLength({ min: 6 }),
+    validarCampos
+],  crearUsuario);
+````
+* En este endpoint de Login, es necesario validar el `email` y `password` y usar el middleware `validarCampos`.
+````
+router.post('/', [
+    check('email', 'El email es obligatorio').isEmail(),
+    check('password', 'El contraseña debe de ser de 6 caracteres').isLength({ min: 6 }),
+    validarCampos
+], loginUsuario);
+````
+Eliminar la validación que se tenia en `controllers/auth-controller.js` especificamente en la función `crearUsuario`.
+
 ----

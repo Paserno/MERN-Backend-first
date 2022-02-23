@@ -4,14 +4,7 @@ const crearUsuario = (req, res = response) => {
 
     const { name, email, password } = req.body;
 
-    if ( password.length < 5 ){
-        return res.status(400).json({
-            ok: false,
-            msg: 'La contraseña debe de ser de 5 caracteres'
-        })
-    }
-    
-    res.json({
+    res.status(201).json({
         ok: true,
         msg: 'Register new',
         name,
