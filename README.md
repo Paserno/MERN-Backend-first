@@ -3,10 +3,20 @@
 Primera app MERN ( __Mongo__ - __Express__ - React - __Node.js__) utilizando las bases aprendidas para la implementación de todos estos elementos en conjuto, este repositorio será la parte del Backend.
 
 Elementos utilizados:
+
+Express
 * __[Express](https://www.npmjs.com/package/express)__ - [Pagina Oficial](https://expressjs.com)
+* __[Express-Validator](https://www.npmjs.com/package/express-validator)__ - [Pagina Oficial](https://express-validator.github.io/docs/)
+
+
+MongoDB
+* __[MongoDB Atlas](https://www.mongodb.com)__
+* __[Mongoose](https://www.npmjs.com/package/mongoose)__ - [Pagina Oficial](https://mongoosejs.com)
+
+Otros
 * __[Doenv](https://www.npmjs.com/package/dotenv)__
 * __[Cors](https://www.npmjs.com/package/cors)__
-* __[Express-Validator](https://www.npmjs.com/package/express-validator)__ - [Pagina Oficial](https://express-validator.github.io/docs/)
+
 
 
 ----
@@ -307,4 +317,54 @@ router.post('/', [
 ````
 Eliminar la validación que se tenia en `controllers/auth-controller.js` especificamente en la función `crearUsuario`.
 
+----
+### 5.- Conexión a MongoDB
+Se hará la configuración la conexión hacia la base de datos, y creando las variables de entorno.
+
+Pasos a Seguir:
+* Implementar la variable de entorno que hará la conexión en `.env`.
+* Creamos la configuración para hacer la conexión en `database/config.js`.
+* Implementar la conexión de `database/config.js` en `index.js`.
+
+En `.env`
+* Se crea la variable de entorno `MONGODB_CNN` con el enlace de conexión que tiene el `user`, `password` y nombre de la BD.
+````
+PORT=4000
+
+MONGODB_CNN=mongodb+srv://[user_name]:[password]@cluster0.mokft.mongodb.net/[db_name]
+````
+En `database/config.js`
+* Una vez instalado __Mongoose__, se importa para la configuración.
+````
+const mongoose = require('mongoose');
+````
+* Se crea la función asíncrona que tendra la conexión a la BD, encerrandolo en un __trycatch__ por si ocurre algun error.
+* Con un await esperamos la conexión a la BD, enviandole la variable de entorno por argumento, en el caso que todo este bien se disparará la impresión por consola.
+* En el caso que se presente un error se mandara una impresón por pantalla del error y un mensaje. 
+````
+const dbConnection = async() => {
+    try {
+        await mongoose.connect( process.env.MONGODB_CNN );
+        console.log('DB Online');
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error al inicializar la BD')
+    }
+}
+````
+* Se importa la función de conexión a la BD.
+````
+module.exports = {
+    dbConnection
+}
+````
+En `index.js`
+* Se importa la función que hará la conexión a la BD. 
+````
+const { dbConnection } = require('./database/config');
+````
+* Se implementa la función que hará la conexión a la BD.
+````
+dbConnection();
+````
 ----

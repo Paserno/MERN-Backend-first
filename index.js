@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config();
+const { dbConnection } = require('./database/config');
 
 const port = process.env.PORT;
 
@@ -8,6 +9,9 @@ const app = express();
 
 // Directorio Publico
 app.use( express.static('public') );
+
+// Base de Datos MongoDB
+dbConnection();
 
 // Lectura y parseo del body
 app.use( express.json() );
