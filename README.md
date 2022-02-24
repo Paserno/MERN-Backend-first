@@ -368,3 +368,66 @@ const { dbConnection } = require('./database/config');
 dbConnection();
 ````
 ----
+### 6.- Crear Usuario en BD
+En este punto se creará el modelo encargado de organizar de como accederá los datos en la base de datos para realizar el guardado en ella.
+
+Pasos a Seguir:
+* Se crea el modelo en `models/Usuario.js`.
+* Se imprta el modelo de usuario en `controllers/auth-controller.js` donde se hará el guardado en la bd.
+
+En `models/Usuario.js`
+* Se importa elementos de __Mongoose__, `Schema` y `model`.
+````
+const { Schema, model } = require('mongoose');
+````
+* Se crea el `Schema` y cada esquema se asigna a una colección, esto define la forma del documento dentro de la colección, en este caso tendra `name`, `email` y `password`.
+````
+const UsuarioSchema = Schema({
+
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true,
+    }
+});
+````
+* Se exporta el modelo, le asignamos un nombre `Usuario` para su importación.
+````
+module.exports = model( 'Usuario', UsuarioSchema );
+````
+En `controllers/auth-controller.js`
+* Se importa el modelo de usuario.
+````
+const Usuario = require('../models/Usuario');
+````
+* La función `crearUsuario` la transformamos en asíncrona.
+* Encerramos el contenido en un __TryCatch__ en el caso que ocurra un error.
+* Realizamos la creación de un nuevo usuario incovando el `new Usuario()` y pasandole el contenido que venga en el `req.body` para luego guardarlo en bd con `.save()`.
+* En el catch controlamos el error que se pueda presentar imprimiendolo por consola y mandando una respuesta con un __status 500__.
+````
+ try {
+        const usuario = new Usuario( req.body );
+    
+        await usuario.save();
+    
+        res.status(201).json({
+            ok: true,
+            msg: 'Register new',
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Contactar con el Administrador'
+        });
+    }
+````
+----
