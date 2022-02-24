@@ -16,6 +16,7 @@ MongoDB
 Otros
 * __[Doenv](https://www.npmjs.com/package/dotenv)__
 * __[Cors](https://www.npmjs.com/package/cors)__
+* __[Bcryptjs](https://www.npmjs.com/package/bcryptjs)__
 
 
 
@@ -468,5 +469,24 @@ const crearUsuario = async(req, res = response) => {
         ...
     }
 }
+````
+----
+### 7.- Encriptar la contraseña
+En este punto se instalará __Bcrypt.js__ para encriptar las contraseñas.
+
+Pasos a Seguir: 
+* Se instalá __[Bcryptjs](https://www.npmjs.com/package/bcryptjs)__.
+* Se implementa la encriptación en `controllers/auth-controller.js`.
+
+En `controllers/auth-controller.js`
+* Se importa __Bcryptjs__.
+````
+const bcryptjs = require('bcryptjs');
+````
+* Con el `.genSaltSync()` se realizan por defecto 10 encriptaciones de una manera asíncrona. _(Al menos que le asignes algun numero de encriptación)_
+* Se le pasa el `password` del `req.body` con el numero de encriptación `salt` al `.hastSync`, de esta manera la contraseña que se pase quedará encriptada y protegida para luego ser almacenada en la base de datos. 
+````
+const salt = bcryptjs.genSaltSync();
+usuario.password = bcryptjs.hashSync( password, salt );
 ````
 ----
