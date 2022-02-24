@@ -431,3 +431,42 @@ const Usuario = require('../models/Usuario');
     }
 ````
 ----
+### 6,5.- Validaciones de Usuario
+Se agregará una validación antes de almacenar el base de datos.
+
+Paso a Seguir:
+* Crear una condicón para verificar si el correo ya esta registrado en `controllers/auth-controller.js`.
+
+En `controllers/auth-controller.js`
+* En la función `crearUsuario` en el `req.body` lo desestructuramos para usar el email, para luego hacer la validación.
+* Utilizamos algo propio de __Mongoose__ el `.findOne()`, que permitirá hacer una comparación, si esque el dato que es enviado ya existe en la base de datos de MongoDB.
+* En el caso de que exista algo en BD con el email del `req.body`, la variable `usuario` vendrá con el resultado, en ese caos se cumnple la condición y enviará un __status 400__, de que ya esta registrado el email.
+* En el caso que no haya ningun error se guardará en Base de Datos normalmente.
+````
+const crearUsuario = async(req, res = response) => {
+
+    const { email, password } = req.body;
+    try {
+        let usuario = await Usuario.findOne({ email: email});
+
+        if ( usuario ){
+            return res.status(400).json({
+                ok: false,
+                msg: 'El email ya está registrado'
+            });
+        }
+        usuario = new Usuario( req.body );
+    
+        await usuario.save();
+    
+        res.status(201).json({
+            ok: true,
+            uid: usuario.id,
+            name: usuario.name
+        })
+    } catch (error) {
+        ...
+    }
+}
+````
+----
