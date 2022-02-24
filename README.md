@@ -5,13 +5,16 @@ Primera app MERN ( __Mongo__ - __Express__ - React - __Node.js__) utilizando las
 Elementos utilizados:
 
 Express
-* __[Express](https://www.npmjs.com/package/express)__ - [Pagina Oficial](https://expressjs.com)
+* __[Express](https://www.npmjs.com/package/express)__ - [Página Oficial](https://expressjs.com)
 * __[Express-Validator](https://www.npmjs.com/package/express-validator)__ - [Pagina Oficial](https://express-validator.github.io/docs/)
 
 
 MongoDB
 * __[MongoDB Atlas](https://www.mongodb.com)__
-* __[Mongoose](https://www.npmjs.com/package/mongoose)__ - [Pagina Oficial](https://mongoosejs.com)
+* __[Mongoose](https://www.npmjs.com/package/mongoose)__ - [Página Oficial](https://mongoosejs.com)
+
+JWT
+* __[Json Web Token](https://www.npmjs.com/package/jsonwebtoken)__ - [Página Oficial](https://jwt.io)
 
 Otros
 * __[Doenv](https://www.npmjs.com/package/dotenv)__
@@ -537,5 +540,67 @@ const loginUsuario = async(req, res) => {
         });
     }
 }
+````
+----
+### 8.- Generar JWT
+En este punto se intalara JWT para luego generar tokens, lo que permitirá el manejo del estado de la sesión del usuario.
+
+Pasos a Seguir:
+* Instalar __[Json Web Token](https://www.npmjs.com/package/jsonwebtoken)__.
+* Creamos una nueva variable de entorno para la palabra secreta del Token en `.env`.
+* Crear un helper que manejará la generación de Tokens.
+* Implementar en el controlador la generación de Token cuando se haga login o register.
+
+En `.env`
+* En la variable `JWT_KEY` guardamos la palabra secreta que servirá como firma en el JWT.
+````
+JWT_KEY=[Palabra Secreta]
+````
+En `helpers/jwt.js`
+* Una vez instalado __JWT__ se importa para realizar la generación de Token.
+````
+const jwt = require('jsonwebtoken');
+````
+* Se crea la función `generarJWT` se recibe por parametro el `uid` y `name` _(Lo que necesitemos guardar en el JWT)_.
+* Es necesario utilizar promesa para JWT, el cual recibira por el payload el `uid` y `name`.
+* Con `jwt.sign()` creamos el Token, pasandole el contenido que tendra en este caso el payload, y le pasamos la palabra clave, ademas de pasarle la duración del token.
+* Con el collback verificamos si existe algun error, en el caso que exista se mandará un mensaje y se imprimirá por consola el error.
+* En el caso que todo salga bien se generará el token.
+````
+const generarJWT = ( uid, name ) => {
+    return new Promise( (resolve, reject) => {
+
+        const payload = { uid, name };
+
+        jwt.sign( payload, process.env.JWT_KEY, {
+            expiresIn: '2h'
+        }, (err, token )=> {
+            if ( err ){
+                console.log(err);
+                reject('No se pudo generar el Token');
+            }else {
+                resolve( token );
+            }
+        })
+    })
+}
+````
+En `controllers/auth-controller.js`
+* Se importa la función que genera Token.
+````
+const { generarJWT } = require('../helpers/jwt');
+````
+* Tanto en la función `crearUsuario` como `loginUsuario` se hara la generación de Token, pasandole por parametros el `id` y el `name`. 
+````
+const token = await generarJWT( usuario.id, usuario.name );
+````
+* Tambien una vez generado el token se mandará el token como respuesta, en el caso que todo salga bien.
+````
+res.status(200).json({
+    ok: true,
+    uid: usuario.id,
+    name: usuario.name,
+    token
+})
 ````
 ----
