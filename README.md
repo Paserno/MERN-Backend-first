@@ -490,3 +490,52 @@ const salt = bcryptjs.genSaltSync();
 usuario.password = bcryptjs.hashSync( password, salt );
 ````
 ----
+### 7,5.- Login de Usuario
+En este punto se hará la comparación entre la contraseña encriptada y con la que viene en el body.
+
+Pasos a Seguir: 
+* Creamos la comparación entre contraseñas en `controllers/auth-controller.js` específicamente en `loginUsuario`.
+
+En `controllers/auth-controller.js`
+* En la función `loginUsuario` se agrega un __TryCatch__, por si hay un error.
+* Realizamos la busqueda en la BD del email que es enviado, en el caso que no exista se mandara un __status 400__ diciendo no que existe.
+* Luego se hace la comparación entre contraseñas, de la que viene y de la que esta en BD con `.compareSync()`, en el caso que sea un `false` se mandará un error con __status 400__.
+* En el caso que pase las dos validaciones se podrá logear el usuario, enviadole un __status 200__ que todo esta bien.
+* Agregamos al ultimo un catch, donde enviará un error con __status 500__.
+````
+const loginUsuario = async(req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        let usuario = await Usuario.findOne({ email });
+        if ( !usuario ){
+            return res.status(400).json({
+                ok: false,
+                msg: 'Email / Password no son validos - email'
+            });
+        }
+
+        const validPassword = bcryptjs.compareSync( password, usuario.password );
+        if ( !validPassword ){
+            return res.status(400).json({
+                ok: false,
+                msg: 'Email / Password no son validos - password'
+            });
+        }
+
+        res.status(200).json({
+            ok: true,
+            uid: usuario.id,
+            name: usuario.name,
+        })
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Contactar con el Administrador'
+        });
+    }
+}
+````
+----
