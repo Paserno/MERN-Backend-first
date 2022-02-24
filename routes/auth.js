@@ -8,11 +8,12 @@ const { check }  = require('express-validator');
 
 const { crearUsuario, revalidarToken, loginUsuario } = require('../controllers/auth-controller');
 const { validarCampos } = require('../middleware/validar-campos');
+const { validarJWT } = require('../middleware/validar-jwt');
 
 const router = Router();
 
 // Rutas
-router.get('/renew', revalidarToken);
+router.get('/renew', validarJWT, revalidarToken);
 
 router.post('/new', [
     check('name', 'El nombre es obligatorio').not().isEmpty(),

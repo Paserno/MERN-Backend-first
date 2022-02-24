@@ -604,3 +604,75 @@ res.status(200).json({
 })
 ````
 ----
+### 9.- Revalidar JWT
+Se realizará la revalidación del Token.
+
+Paso a Seguir:
+* Se crea el middleware para validar los Token.
+* Luego se importará en las rutas de `revalidarToken`.
+* Se modifica la función `revalidarToken` para generar otro token.
+
+En `middleware/validar-jwt.js`
+* Se importan 2 elementos el `response` para la ayuda del tipeo y jwt.
+````
+const { response } = require('express')
+const jwt = require('jsonwebtoken');
+````
+* Se crea la función `validarJWT` donde se recibe por parametro el `req`, `res` y `next`.
+* Extraemos a traves del header el `x-token`, en el caso que no venga se mandará un error con __status 401__.
+* Se realiza la verificación del token con `jwt.verify()` recibiendo el token y la firma, y desestructuramos el `uid` y `name`.
+* Mandamos el uid y el name por la request `req`.
+* En el caso que exista algun error pasará por el `catch`.
+````
+const validarJWT = ( req, res = response, next ) => {
+    try {
+        const token = req.header('x-token');
+
+        if ( !token ){
+            return res.status(401).json({
+                ok: false,
+                msg: 'No hay token en la petición'
+            });
+        }
+
+        const { uid, name } = jwt.verify(
+            token,
+            process.env.JWT_KEY
+        );
+        req.uid = uid;
+        req.name = name;
+        
+        next();
+        
+    } catch (error) {
+        return res.status(401).json({
+            ok: false,
+            msg: 'Token no Válido'
+        })
+    }
+}
+````
+En `routes/auth.js`
+* Se importa la función `validarJWT`.
+````
+const { validarJWT } = require('../middleware/validar-jwt');
+````
+* Se le agrega `validarJWT` en el endpoint
+````
+router.get('/renew', validarJWT, revalidarToken);
+````
+* Se modifica `revalidarToken`, se cambia a una función asíncrona.
+* Se genera un token nuevo con lo que se recibio de la request y se manda como respuesta.
+````
+const revalidarToken = async(req, res) => {
+    const { uid, name } = req;
+
+    const token = await generarJWT( uid, name );
+    
+    res.json({
+        ok: true,
+        token
+    })
+}
+````
+----
