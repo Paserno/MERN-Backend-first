@@ -693,3 +693,79 @@ const cors = require('cors');
 app.use(cors());
 ````
 ----
+# MERN Backend - Eventos CRUD
+En este seguno nivel del Backend se realizará los CRUD de los eventos del calendario, para luego integrarlo con el Fronend.
+
+<img src="https://miro.medium.com/max/1400/1*2eBdh0vLZjUyCDF6x1EqvQ.png" alt="CRUD" width="320"/>
+
+----
+### 1.- CRUD Basicos
+En este punto se crearan los CRUD de eventos que se utilizarán.
+
+Paso a Seguir: 
+* Crear controlador de evento en `controllers/events-controller.js`.
+* En `routes/` crear archivo `routes/events.js`, donde se guardará la ruta de los eventos.
+* Importar eventos en `index.js`.
+
+En `controllers/events-controller.js`
+* Se importa `response` de express para tener ayuda de tipado. 
+````
+const { response } = require('express');
+````
+* Creamos la primera función que se utilizará en los endopoints, `getEventos`, que retorna un __JSON__, lo realizamos a modo de prueba así mismo con `crearEvent`, `actualizarEvent` y `eliminarEvent`.
+````
+const getEventos = ( req, res = response ) => {
+    return res.json({
+        ok:true,
+        msg: 'getEventos'
+    });
+}
+````
+* Exportamos todas las funciónes.
+````
+module.exports = {
+    getEventos,
+    crearEvento,
+    actualizarEvento,
+    eliminarEvento,
+}
+````
+En `routes/events.js`
+* Importamos __Router__ de express, `check` de Express validator que se utilizará proximamente, las funciónes que se utilizarán en los endpoints y el middleware `validarJWT`.
+````
+const { Router } = require('express');
+const { check }  = require('express-validator');
+const { 
+    getEventos,
+    crearEvento,
+    actualizarEvento,
+    eliminarEvento } = require('../controllers/events-controller');
+const { validarJWT } = require('../middleware/validar-jwt');
+````
+* Utilizamos Router para asignarlo a una constante.
+* Ya que usaremos en todos los endpoint la validación del JWT, lo agregamos global con `.use()`.
+````
+const router = Router();
+
+router.use( validarJWT );
+````
+* Agregamos todos los endpoint con la ruta al `/`, ademas con PUT y DELETE recibiendo `id`. 
+````
+router.get('/', getEventos);
+
+router.post('/', crearEvento);
+
+router.put('/:id', actualizarEvento);
+
+router.delete('/:id', eliminarEvento);
+````
+* Exportamos `router`.
+````
+module.exports = router;
+````
+En `index.js`
+* Agregamos el nuevo route con la ruta `/api/events`.
+````
+app.use('/api/events', require('./routes/events'));
+````
+----
