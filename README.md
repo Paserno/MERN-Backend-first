@@ -919,3 +919,24 @@ const crearEvento = async( req, res = response ) => {
 }
 ````
 ----
+### 4,5.- Obtener Listado de Eventos
+En este punto se implmentará el GET para obtener un listado de los eventos.
+
+Pasos a Seguir:
+* Implementar obtención de eventos.
+
+En `controllers/events-controller.js`
+* Se implementa el asíncronismo en la función `getEventos`.
+* Se implementa `.find()` para obtener los eventos, adicionalmente se implementa `.populate()` para mostrar el `name` el usuario que creeo el evento.
+````
+const getEventos = async( req, res = response ) => {
+    const eventos = await Evento.find()
+                                .populate('user', 'name');
+
+    return res.json({
+        ok:true,
+        eventos
+    });
+}
+````
+----
