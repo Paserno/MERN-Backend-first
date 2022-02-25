@@ -676,3 +676,20 @@ const revalidarToken = async(req, res) => {
 }
 ````
 ----
+### 10.- CORS
+Realizamos la configuración basica de CORS.
+
+Paso a Seguir:
+* Instalar __[Cors](https://www.npmjs.com/package/cors)__.
+* Implementar en `index.js` la configuración de CORS.
+
+En `index.js`
+* Una vez instalado cors, se importa.
+````
+const cors = require('cors');
+````
+* Implementamos __CORS__ con un middleware de Express.
+````
+app.use(cors());
+````
+----
