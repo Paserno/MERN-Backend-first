@@ -769,3 +769,44 @@ En `index.js`
 app.use('/api/events', require('./routes/events'));
 ````
 ----
+### 2.- Modelo Evento 
+Se crea el modelo de los eventos.
+
+Pasos a Seguir:
+* Se crea el modelo de Events.
+
+En `controllers/events-controller.js`
+* Se importa los elementos de __Moongose__ `Schema` y `model`.
+````
+const { Schema, model } = require('mongoose');
+````
+* Se crea el esquema de Eventos, con `title`, `notes`, `start`, `end` y `user` que tiene la relación con el documento usuario.
+````
+const EventoSchema = Schema({
+
+    title: {
+        type: String,
+        required: true
+    },
+    notes: {
+        type: String,
+    },
+    start: {
+        type: Date,
+        required: true
+    },
+    end: {
+        type: Date,
+        required: true
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario'
+    }
+});
+````
+* Exportamos el modelo, asignadole el nombre `Evento`.
+````
+module.exports = model( 'Evento', EventoSchema );
+````
+----
