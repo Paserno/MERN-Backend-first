@@ -20,6 +20,7 @@ Otros
 * __[Doenv](https://www.npmjs.com/package/dotenv)__
 * __[Cors](https://www.npmjs.com/package/cors)__
 * __[Bcryptjs](https://www.npmjs.com/package/bcryptjs)__
+* __[Moment](https://www.npmjs.com/package/moment)__
 
 
 
@@ -808,5 +809,59 @@ const EventoSchema = Schema({
 * Exportamos el modelo, asignadole el nombre `Evento`.
 ````
 module.exports = model( 'Evento', EventoSchema );
+````
+----
+### 3.- Validar Campos
+Se agregaran algunas validaciones en los eventos.
+
+Paso a Seguir:
+* Instalamos __[Moment](https://www.npmjs.com/package/moment)__.
+* Se crea un custom validator con ayuda de Express Validator para validar la fechas.
+* Agregamos validaciónes en la ruta de los eventos.
+
+En `helpers/isDate.js`
+* Una vez instalado moment se importa.
+````
+const moment = require('moment');
+````
+* Se crea la función recibiendo por parametro `value`.
+* Realizamos una validación de que si viene el `value`, en el caso que no se retornará un `false`.
+* Le asignamos el `value` a __moment__ y lo asignamos a una constante.
+* Realizamos otra validación, usando un metodo de __moment__ `isValid()`, en el caso que fecha sea valido, se retornará un `true` en el caso que no se retornará un `false`.
+````
+const isDate = ( value ) => {
+
+    if ( !value ) {
+        return false;
+    }
+    const fecha = moment( value )
+    if ( fecha.isValid() ){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+````
+* Importamos nuestra función que hará la validación.
+````
+module.exports = {
+    isDate
+}
+````
+En `routes/events.js`
+* Se importá el custom validator y el validar campos.
+````
+const { isDate } = require('../helpers/isDate');
+const { validarCampos } = require('../middleware/validar-campos');
+````
+* Agregamos algunas validaciónes del titulo que no tiene que venir vacío y las fechas de `start` y `end`, en todas las validaciónes agregamos el `validarCampos` ya que este hará que se detenga el proceso y salten los errores.
+````
+router.post('/', [
+    check('title', 'El titulo es obligatorio').not().isEmpty(),
+    check('start', 'Fecha de inicio es obligatoria').custom( isDate ),
+    check('end', 'Fecha de finalización es obligatoria').custom( isDate ),
+    validarCampos
+], crearEvento);
 ````
 ----
