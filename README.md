@@ -802,7 +802,8 @@ const EventoSchema = Schema({
     },
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'Usuario'
+        ref: 'Usuario',
+        required: true
     }
 });
 ````
@@ -863,5 +864,58 @@ router.post('/', [
     check('end', 'Fecha de finalización es obligatoria').custom( isDate ),
     validarCampos
 ], crearEvento);
+````
+----
+### 4.- Guardar Evento en BD
+En este punto se guardará los datos que son enviados por Postman, datos del evento.
+
+Pasos a Seguir: 
+* Se adaptará el modelo de evento para eliminar `__v` de MongoDB.
+* Se modifica la función del metodo POST, para guardar los eventos en BD que son recibidos.
+
+En `models/Evento.js`
+* Se utiliza `.method('toJSON')` para cuando se llame el JSON los valores del metodo sean mostado al gusto de nosotros.
+* En este caso se desestructura algunos elementos de `this.toObject()` que son `__v`, `_id` y todo lo demas que viene estará en `object` usando el operador spread de esparcimiento.
+* Le quitamos el guion bajo a la id y retornamos el `object`.
+````
+EventoSchema.method('toJSON', function() {
+    const { __v, _id, ...object } = this.toObject();
+    object.id = _id;
+    return object;
+});
+````
+En `controllers/events-controller.js`
+* Importamos el modelo de evento.
+````
+const Evento = require('../models/Evento');
+````
+* La fucnión `crearEvento` le agregamos el `async`.
+* Con lo que viene en `req.body` se lo asingamos al modelo de evento.
+* Encerramos el contenido de la función en un TryCatch.
+* el `uid` que es mandado por el middleware `validarJWT` se lo asingamos a la constante `evento.user`.
+* Almacenamos en BD el contenido de `evento` y luego lo mandamos como respuesta.
+* En el catch controlamos el error, imprimiendolo por consola y enviando un __status 500__.
+````
+const crearEvento = async( req, res = response ) => {
+    const evento = new Evento( req.body );
+
+    try {
+        evento.user = req.uid;
+
+        const eventSave = await evento.save();
+
+        return res.json({
+            ok:true,
+            evento : eventSave
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Hablar con el Administrador'
+        });
+    }
+}
 ````
 ----
