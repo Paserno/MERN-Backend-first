@@ -940,3 +940,63 @@ const getEventos = async( req, res = response ) => {
 }
 ````
 ----
+### 5.- Actualizar Evento
+En este punto se implementará la funciónalidad de actualizar un evento.
+
+Paso a Seguir:
+* Adaptar la función `actualizarEvento` de `controllers/events-controller.js`.
+
+En `controllers/events-controller.js`
+* Se implmenta el `async` en la función `actualizarEvento`.
+* Extraemos el id de los parametros con `req.params.id` y lo almacenamos en una constante.
+* Extraemos el `uid` que es mandado por la validación global `validarJWT`.
+* Encerramos todo en un TryCatch para el manejo de errores.
+````
+const actualizarEvento = async( req, res = response ) => {
+
+    const eventoId = req.params.id;
+    const uid = req.uid;
+
+    try {
+        ...
+    } catch {
+        ...
+    }
+}
+````
+* Realizamos una busqueda en la BD, del id que es mandado por los parametros, en el caso de encontrarlo se almacenará en la constante.
+* Realizamos la primera condición que si no se ecuentra ningun evento con el id que es mandado, mandará un error con un __status 404__.
+````
+const evento = await Evento.findById( eventoId );
+
+if ( !evento ) {
+    res.status(404).json({
+        ok: false,
+        msg: 'Evento no existe por ese id'
+    })
+}
+````
+* Se realiza la segunda condición, en el caso que otro usuario con otro id intente editar la evento no tendra acceso, y se enviará un error con un __status 401__.
+````
+if ( evento.user.toString() !== uid ) {
+    return res.status(401).json({
+        ok: false,
+        msg: 'No tiene privilegio de editar este evento'
+    })
+}
+````
+* En el caso de pasar todas las condiciones, se creará un nuevo objeto que tendra todo el contenido que es enviado por el `req.body` y el user con el `uid` del token.
+* Se realiza la acutalización con `.findByIdAndUpdate()` enviadole el id de los parametros, el objeto con el contenido a cambiar y con `{ new: true }` para que mande el contenido actualizado en el resultado de la petición.
+````
+ const nuevoEvento = {
+    ...req.body,
+    user: uid
+}
+const eventoActualizado = await Evento.findByIdAndUpdate(eventoId, nuevoEvento, {new: true});
+
+return res.json({
+    ok:true,
+    evento: eventoActualizado
+});
+````
+----
