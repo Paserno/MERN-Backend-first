@@ -23,6 +23,7 @@ Otros
 * __[Moment](https://www.npmjs.com/package/moment)__
 
 
+> __[Eventos CRUD](https://github.com/Paserno/MERN-Backend-first#mern-backend---eventos-crud)__
 
 ----
 Para reconstruir los módulos de node ejecute el siguiente comando.
