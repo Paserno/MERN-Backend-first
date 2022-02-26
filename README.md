@@ -970,13 +970,13 @@ const actualizarEvento = async( req, res = response ) => {
 const evento = await Evento.findById( eventoId );
 
 if ( !evento ) {
-    res.status(404).json({
+    return res.status(404).json({
         ok: false,
         msg: 'Evento no existe por ese id'
     })
 }
 ````
-* Se realiza la segunda condición, en el caso que otro usuario con otro id intente editar la evento no tendra acceso, y se enviará un error con un __status 401__.
+* Se realiza la segunda condición, en el caso que otro usuario con otro id intente editar el evento no tendra acceso, y se enviará un error con un __status 401__.
 ````
 if ( evento.user.toString() !== uid ) {
     return res.status(401).json({
@@ -998,5 +998,70 @@ return res.json({
     ok:true,
     evento: eventoActualizado
 });
+````
+----
+### 5,5.- Eliminar Eventos
+En este punto se realizará la eliminación de los eventos, usando un formato muy similar al de actualizar que tambien recibe la id.
+
+Paso a Seguir:
+* Adaptar función `eliminarEvento` del controlador de eventos.
+
+En `controllers/events-controller.js`
+* Se implmenta el `async` en la función `eliminarEvento`.
+* Extraemos el id de los parametros con `req.params.id` y lo almacenamos en una constante.
+* Extraemos el `uid` que es mandado por la validación global `validarJWT`.
+* Encerramos todo en un TryCatch para el manejo de errores.
+````
+const eliminarEvento = async( req, res = response ) => {
+
+    const eventoId = req.params.id;
+    const uid = req.uid;
+
+    try {
+        ...
+    } catch {
+        ...
+    }
+}
+````
+* Realizamos una busqueda en la BD, del id que es mandado por los parametros, en el caso de encontrarlo se almacenará en la constante.
+* Realizamos la primera condición que si no se ecuentra ningun evento con el id que es mandado, mandará un error con un __status 404__.
+````
+const evento = await Evento.findById( eventoId );
+
+if ( !evento ) {
+    return res.status(404).json({
+        ok: false,
+        msg: 'Evento no existe por ese id'
+    })
+}
+````
+* Se realiza la segunda condición, en el caso que otro usuario con otro id intente eliminar el evento no tendra acceso, y se enviará un error con un __status 401__.
+````
+if ( evento.user.toString() !== uid ) {
+    return res.status(401).json({
+        ok: false,
+        msg: 'No tiene privilegio de editar este evento'
+    })
+}
+````
+* Se envía el id a `.findByIdAndDelete()` para eliminar el evento y se retorna un JSON con un ok.
+````
+const eventoActualizado = await Evento.findByIdAndDelete(eventoId);
+
+return res.json({
+    ok:true,
+    Eliminado: eventoActualizado
+});
+````
+* El catch controlará el error, imprimiendolo por consola y enviado un __status 500__.
+````
+catch (error) {
+    console.log(error);
+    return res.status(500).json({
+        ok: false,
+        msg: 'Hable con el Administrador'
+    });
+}
 ````
 ----
